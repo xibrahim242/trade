@@ -6,7 +6,6 @@
     <title>XAU/USD Trading Simülatörü</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <style>
-        /* style.css */
         :root {
             --primary-text: #2d3436;
             --background: #ffffff;
@@ -43,7 +42,7 @@
             background: var(--background);
             color: var(--primary-text);
             line-height: 1.6;
-            padding: 20px;
+            padding: 15px;
         }
 
         .container {
@@ -51,76 +50,77 @@
             margin: 0 auto;
             display: flex;
             flex-direction: column;
-            gap: 20px;
+            gap: 15px;
         }
 
         header {
             display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 15px 20px;
+            flex-wrap: wrap;
+            gap: 10px;
+            padding: 15px;
             background: var(--panel-bg);
-            border-radius: 15px;
-            box-shadow: 0 5px 15px var(--shadow);
+            border-radius: 12px;
+            box-shadow: 0 3px 10px var(--shadow);
             border: 1px solid var(--border);
         }
 
         .price-badge, .time-badge {
-            padding: 8px 15px;
-            border-radius: 30px;
+            padding: 6px 12px;
+            border-radius: 20px;
             background: var(--secondary-bg);
-            font-weight: bold;
+            font-size: 0.9rem;
         }
 
         .chart-container {
-            height: 400px;
+            height: 300px;
             width: 100%;
         }
 
         .panel {
             background: var(--panel-bg);
-            border-radius: 15px;
-            padding: 20px;
-            box-shadow: 0 5px 15px var(--shadow);
+            border-radius: 12px;
+            padding: 15px;
+            box-shadow: 0 3px 10px var(--shadow);
             border: 1px solid var(--border);
         }
 
-        .portfolio-stats {
+        .portfolio-stats, .stats-grid {
             display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
         }
 
-        .portfolio-item {
+        .portfolio-item, .stat-item {
             background: var(--secondary-bg);
-            padding: 15px;
-            border-radius: 10px;
-            display: flex;
-            justify-content: space-between;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 0.9rem;
         }
 
         .trade-form {
             display: flex;
             flex-direction: column;
-            gap: 15px;
+            gap: 12px;
         }
 
         input, select {
             width: 100%;
-            padding: 12px;
+            padding: 10px;
             border: 1px solid var(--border);
-            border-radius: 8px;
+            border-radius: 6px;
             background: var(--secondary-bg);
             color: var(--primary-text);
+            font-size: 1rem;
         }
 
         button {
-            padding: 12px;
+            padding: 10px;
             border: none;
-            border-radius: 8px;
+            border-radius: 6px;
             cursor: pointer;
             font-weight: 600;
             color: white;
+            font-size: 0.9rem;
         }
 
         .btn-buy { background: var(--success); }
@@ -128,15 +128,46 @@
 
         .theme-toggle {
             position: fixed;
-            bottom: 25px;
-            right: 25px;
-            width: 50px;
-            height: 50px;
+            bottom: 20px;
+            right: 20px;
+            width: 45px;
+            height: 45px;
             border-radius: 50%;
             background: var(--secondary-bg);
             border: 1px solid var(--border);
-            cursor: pointer;
-            box-shadow: 0 5px 15px var(--shadow);
+            box-shadow: 0 3px 10px var(--shadow);
+        }
+
+        .stats-panel h3 {
+            margin-bottom: 12px;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-weight: bold;
+            margin-top: 5px;
+        }
+
+        @media (max-width: 768px) {
+            .portfolio-stats, .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            header h1 {
+                font-size: 1.4rem;
+            }
+            
+            .chart-container {
+                height: 250px;
+            }
+            
+            .portfolio-item, .stat-item {
+                padding: 10px;
+                font-size: 0.85rem;
+            }
         }
     </style>
 </head>
@@ -147,11 +178,10 @@
 
     <div class="container">
         <header>
-            <h1><i class="fas fa-coins"></i> XAU/USD Ticaret Simülatörü</h1>
+            <h1><i class="fas fa-coins"></i> XAU/USD Simülatör</h1>
             <div class="header-stats">
                 <div class="price-badge">
-                    <i class="fas fa-chart-line"></i> Canlı Fiyat: <span id="currentPrice">$2300.00</span>
-                    <span id="priceChange" class="price-change"></span>
+                    <i class="fas fa-chart-line"></i> Fiyat: <span id="currentPrice">$2300.00</span>
                 </div>
                 <div class="time-badge">
                     <i class="fas fa-clock"></i> <span id="simulationTime">00:00:00</span>
@@ -159,48 +189,65 @@
             </div>
         </header>
 
+        <div class="chart-section panel">
+            <div class="chart-container">
+                <canvas id="priceChart"></canvas>
+            </div>
+        </div>
+
         <div class="dashboard">
-            <div class="chart-section">
-                <div class="chart-container">
-                    <canvas id="priceChart"></canvas>
+            <div class="portfolio-panel panel">
+                <h3><i class="fas fa-wallet"></i> Portföy</h3>
+                <div class="portfolio-stats">
+                    <div class="portfolio-item">
+                        <span>Nakit:</span>
+                        <span id="cashBalance">$100,000.00</span>
+                    </div>
+                    <div class="portfolio-item">
+                        <span>Altın:</span>
+                        <span id="goldHoldings">0.00 ons</span>
+                    </div>
+                    <div class="portfolio-item">
+                        <span>Altın Değer:</span>
+                        <span id="goldValue">$0.00</span>
+                    </div>
+                    <div class="portfolio-item">
+                        <span>Toplam:</span>
+                        <span id="totalValue">$100,000.00</span>
+                    </div>
                 </div>
             </div>
 
-            <div class="trading-section">
-                <div class="portfolio-panel panel">
-                    <h3><i class="fas fa-wallet"></i> Portföy</h3>
-                    <div class="portfolio-stats">
-                        <div class="portfolio-item">
-                            <span>Nakit Bakiye:</span>
-                            <span id="cashBalance">$100,000.00</span>
-                        </div>
-                        <div class="portfolio-item">
-                            <span>Altın Miktarı:</span>
-                            <span id="goldHoldings">0.00 ons</span>
-                        </div>
-                        <div class="portfolio-item">
-                            <span>Altın Değeri:</span>
-                            <span id="goldValue">$0.00</span>
-                        </div>
-                        <div class="portfolio-item">
-                            <span>Toplam Değer:</span>
-                            <span id="totalValue">$100,000.00</span>
-                        </div>
+            <div class="trading-panel panel">
+                <h3><i class="fas fa-exchange-alt"></i> İşlemler</h3>
+                <div class="trade-form">
+                    <input type="number" id="quantity" min="0.01" step="0.01" value="1.00" placeholder="Miktar (ons)">
+                    <div class="btn-group">
+                        <button class="btn-buy" onclick="placeOrder('buy')"><i class="fas fa-arrow-up"></i> AL</button>
+                        <button class="btn-sell" onclick="placeOrder('sell')"><i class="fas fa-arrow-down"></i> SAT</button>
                     </div>
                 </div>
+            </div>
+        </div>
 
-                <div class="trading-panel panel">
-                    <h3><i class="fas fa-exchange-alt"></i> İşlemler</h3>
-                    <div class="trade-form">
-                        <div class="input-group">
-                            <label for="quantity">Miktar (ons):</label>
-                            <input type="number" id="quantity" min="0.01" step="0.01" value="1.00">
-                        </div>
-                        <div class="btn-group">
-                            <button class="btn-buy" onclick="placeOrder('buy')"><i class="fas fa-arrow-up"></i> AL</button>
-                            <button class="btn-sell" onclick="placeOrder('sell')"><i class="fas fa-arrow-down"></i> SAT</button>
-                        </div>
-                    </div>
+        <div class="stats-panel panel">
+            <h3><i class="fas fa-chart-bar"></i> İstatistikler</h3>
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <div class="stat-title">Toplam İşlem</div>
+                    <div class="stat-value" id="totalTrades">0</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-title">Kazançlı</div>
+                    <div class="stat-value" id="profitableTrades">0%</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-title">Net Kar/Zarar</div>
+                    <div class="stat-value" id="netProfit">$0.00</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-title">Ort. Kar</div>
+                    <div class="stat-value" id="avgProfit">$0.00</div>
                 </div>
             </div>
         </div>
@@ -208,7 +255,6 @@
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
-        // script.js
         const config = {
             initialPrice: 2300.00,
             initialBalance: 100000,
@@ -223,6 +269,10 @@
         let priceHistory = Array(100).fill(config.initialPrice);
         let isDarkMode = localStorage.getItem('theme') === 'dark';
         let priceChart;
+        let totalTrades = 0;
+        let profitableTrades = 0;
+        let totalProfit = 0;
+        let startTime = Date.now();
 
         function initChart() {
             const ctx = document.getElementById('priceChart').getContext('2d');
@@ -242,9 +292,7 @@
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
-                    scales: {
-                        y: { beginAtZero: false }
-                    }
+                    scales: { y: { beginAtZero: false } }
                 }
             });
         }
@@ -261,11 +309,10 @@
             
             priceHistory.shift();
             priceHistory.push(currentPrice);
-            
-            priceChart.data.datasets[0].data = priceHistory;
             priceChart.update();
             
             updateDisplay();
+            updateTime();
         }
 
         function placeOrder(type) {
@@ -273,17 +320,26 @@
             const total = quantity * currentPrice;
             const commission = total * config.commission;
 
+            if(type === 'buy' && balance < total + commission) return alert('Yetersiz bakiye!');
+            if(type === 'sell' && holdings < quantity) return alert('Yetersiz altın!');
+
+            const profit = type === 'sell' ? (total - commission - (quantity * currentPositionCost)) : 0;
+            
+            totalTrades++;
+            if(profit > 0) profitableTrades++;
+            totalProfit += profit;
+
             if(type === 'buy') {
-                if(balance < total + commission) return alert('Yetersiz bakiye!');
                 balance -= (total + commission);
                 holdings += quantity;
+                currentPositionCost = currentPrice;
             } else {
-                if(holdings < quantity) return alert('Yetersiz altın!');
                 balance += (total - commission);
                 holdings -= quantity;
             }
 
             updateDisplay();
+            updateStats();
         }
 
         function updateDisplay() {
@@ -294,7 +350,26 @@
             document.getElementById('totalValue').textContent = `$${(balance + holdings * currentPrice).toFixed(2)}`;
         }
 
-        // Başlangıç
+        function updateStats() {
+            const profitPercentage = totalTrades > 0 ? 
+                Math.round((profitableTrades / totalTrades) * 100) : 0;
+            
+            document.getElementById('totalTrades').textContent = totalTrades;
+            document.getElementById('profitableTrades').textContent = `${profitPercentage}%`;
+            document.getElementById('netProfit').textContent = `$${totalProfit.toFixed(2)}`;
+            document.getElementById('avgProfit').textContent = totalTrades > 0 ? 
+                `$${(totalProfit / totalTrades).toFixed(2)}` : '$0.00';
+        }
+
+        function updateTime() {
+            const elapsed = Date.now() - startTime;
+            const hours = Math.floor(elapsed / 3600000);
+            const minutes = Math.floor((elapsed % 3600000) / 60000);
+            const seconds = Math.floor((elapsed % 60000) / 1000);
+            document.getElementById('simulationTime').textContent = 
+                `${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+        }
+
         window.addEventListener('DOMContentLoaded', () => {
             initChart();
             updateDisplay();
