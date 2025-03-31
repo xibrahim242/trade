@@ -3,12 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
-    <title>XAU/USD Trading Simülatörü</title>
+    <title>Profesyonel XAU/USD Simülatörü</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <button class="theme-toggle" onclick="toggleTheme()"><i class="fas fa-moon"></i></button>
+    <button class="theme-toggle" onclick="toggleTheme()">
+        <i class="fas fa-moon light-icon"></i>
+        <i class="fas fa-sun dark-icon"></i>
+    </button>
 
     <div class="container">
         <div class="chart-box">
@@ -19,8 +22,8 @@
         <div class="trading-panel">
             <div class="market-data">
                 <div class="market-item">
-                    <div>Anlık Fiyat</div>
-                    <div class="current-price">$2300.00</div>
+                    <div>Nakit Bakiye</div>
+                    <div class="cash-balance">$100,000.00</div>
                 </div>
                 <div class="market-item">
                     <div>Portföy Değeri</div>
@@ -37,13 +40,13 @@
             </div>
 
             <div class="transaction-history">
-                <h3><i class="fas fa-history"></i> İşlemler</h3>
+                <h3><i class="fas fa-history"></i> İşlem Geçmişi</h3>
                 <div id="historyList"></div>
             </div>
         </div>
 
         <div class="news-container">
-            <h3><i class="fas fa-newspaper"></i> Piyasa Haberleri</h3>
+            <h3><i class="fas fa-newspaper"></i> Anlık Piyasa Haberleri</h3>
             <div id="newsFeed"></div>
         </div>
     </div>
