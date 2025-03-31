@@ -1,3 +1,4 @@
+/* style.css */
 :root {
     --primary-text: #2c3e50;
     --background: #ffffff;
@@ -6,20 +7,25 @@
     --danger: #e74c3c;
     --border: #dee2e6;
     --chart-color: #FFD700;
+    --news-positive: #2ecc71;
+    --news-negative: #e74c3c;
 }
 
 [data-theme="dark"] {
-    --primary-text: #f8f9fa;
+    --primary-text: #e0e0e0;
     --background: #1a1a1a;
     --secondary-bg: #2d2d2d;
     --border: #404040;
     --chart-color: #FFD700;
+    --news-positive: #27ae60;
+    --news-negative: #e74c3c;
 }
 
 * {
     box-sizing: border-box;
     margin: 0;
     padding: 0;
+    transition: background 0.3s, color 0.3s;
 }
 
 body {
@@ -27,7 +33,7 @@ body {
     background-color: var(--background);
     color: var(--primary-text);
     padding: 10px;
-    transition: background 0.3s, color 0.3s;
+    line-height: 1.6;
 }
 
 .container {
@@ -35,7 +41,8 @@ body {
     margin: 0 auto;
     display: grid;
     grid-template-columns: 1fr;
-    gap: 10px;
+    gap: 15px;
+    padding: 10px;
 }
 
 .chart-box {
@@ -43,15 +50,17 @@ body {
     height: 300px;
     background: var(--secondary-bg);
     padding: 15px;
-    border-radius: 8px;
+    border-radius: 12px;
     border: 1px solid var(--border);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
 }
 
 .trading-panel, .news-container {
     background: var(--secondary-bg);
-    padding: 15px;
-    border-radius: 8px;
+    padding: 20px;
+    border-radius: 12px;
     border: 1px solid var(--border);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
 }
 
 #priceChart {
@@ -62,28 +71,35 @@ body {
 .market-data {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 8px;
-    margin-bottom: 12px;
+    gap: 12px;
+    margin-bottom: 15px;
 }
 
 .market-item {
-    padding: 10px;
-    border-radius: 6px;
+    padding: 15px;
+    border-radius: 8px;
     text-align: center;
     background: var(--background);
+    border: 1px solid var(--border);
+}
+
+.market-item div:first-child {
+    color: var(--primary-text);
+    opacity: 0.8;
     font-size: 0.9em;
+    margin-bottom: 5px;
 }
 
 .order-form {
     display: grid;
-    gap: 8px;
+    gap: 12px;
 }
 
-input, button {
+input {
     width: 100%;
-    padding: 10px;
+    padding: 12px;
     border: 1px solid var(--border);
-    border-radius: 6px;
+    border-radius: 8px;
     background: var(--background);
     color: var(--primary-text);
     font-size: 1em;
@@ -92,27 +108,33 @@ input, button {
 .btn-group {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 6px;
+    gap: 10px;
 }
 
 button {
     border: none;
     cursor: pointer;
     font-weight: 600;
-    transition: opacity 0.3s;
+    padding: 12px;
+    border-radius: 8px;
+    transition: transform 0.2s;
+}
+
+button:active {
+    transform: scale(0.98);
 }
 
 .btn-buy { background: var(--success); color: white; }
 .btn-sell { background: var(--danger); color: white; }
 
 .news-item {
-    padding: 10px;
-    margin: 8px 0;
+    padding: 15px;
+    margin: 10px 0;
     border-left: 4px solid;
     animation: newsAppear 0.5s ease;
-    font-size: 0.85em;
     background: var(--background);
-    border-radius: 4px;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.05);
 }
 
 @keyframes newsAppear {
@@ -121,54 +143,61 @@ button {
 }
 
 .transaction-history {
-    max-height: 150px;
+    max-height: 200px;
     overflow-y: auto;
-    margin-top: 12px;
+    margin-top: 15px;
 }
 
 .history-item {
-    padding: 6px;
-    margin: 4px 0;
-    border-radius: 4px;
+    padding: 10px;
+    margin: 8px 0;
+    border-radius: 6px;
     display: grid;
     grid-template-columns: 1fr 1fr 1fr;
-    gap: 4px;
-    font-size: 0.8em;
+    gap: 8px;
+    font-size: 0.85em;
+    background: var(--background);
+    border: 1px solid var(--border);
 }
 
 .theme-toggle {
     position: fixed;
-    bottom: 15px;
-    right: 15px;
-    padding: 12px;
+    bottom: 20px;
+    right: 20px;
+    padding: 14px;
     border-radius: 50%;
     background: var(--secondary-bg);
     color: var(--primary-text);
     border: 1px solid var(--border);
     cursor: pointer;
     z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
 }
+
+.theme-toggle .dark-icon { display: none; }
+[data-theme="dark"] .theme-toggle .light-icon { display: none; }
+[data-theme="dark"] .theme-toggle .dark-icon { display: block; }
 
 @media (min-width: 768px) {
     .container {
         grid-template-columns: 2fr 1fr;
-        gap: 15px;
-        padding: 15px;
+        gap: 20px;
+        padding: 20px;
     }
-    .news-container {
-        grid-column: 1 / -1;
+    .chart-box {
+        height: 400px;
     }
 }
 
 @media (max-width: 480px) {
-    .chart-box {
-        height: 200px;
-    }
     .market-data {
         grid-template-columns: 1fr;
     }
     .btn-group button {
-        padding: 8px;
+        padding: 10px;
         font-size: 0.9em;
     }
 }
