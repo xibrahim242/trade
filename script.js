@@ -1,17 +1,16 @@
-// script.js
 const config = {
     initialPrice: 2300.00,
     initialBalance: 100000,
     volatility: 0.035,
-    newsInterval: 4500,
+    newsInterval: 5000,
     commission: 0.0015,
-    maxHistory: 60
+    historyLength: 60
 };
 
 let currentPrice = config.initialPrice;
 let balance = config.initialBalance;
 let holdings = 0;
-let priceHistory = Array(config.maxHistory).fill(config.initialPrice);
+let priceHistory = Array(config.historyLength).fill(config.initialPrice);
 let isDarkMode = localStorage.getItem('theme') === 'dark';
 
 // Grafik Başlatma
@@ -19,55 +18,37 @@ const ctx = document.getElementById('priceChart').getContext('2d');
 const chart = new Chart(ctx, {
     type: 'line',
     data: {
-        labels: [...Array(config.maxHistory).keys()],
+        labels: priceHistory.map((_, i) => i + 1),
         datasets: [{
             label: 'XAU/USD',
             data: priceHistory,
-            borderColor: 'var(--chart-color)',
+            borderColor: 'var(--chart-line)',
+            tension: 0.1,
             borderWidth: 2,
-            tension: 0.2,
-            pointRadius: 0,
-            fill: false
+            pointRadius: 0
         }]
     },
     options: {
         responsive: true,
         maintainAspectRatio: false,
-        plugins: {
-            legend: { display: false },
-            tooltip: {
-                mode: 'index',
-                intersect: false,
-                backgroundColor: 'var(--secondary-bg)',
-                titleColor: 'var(--primary-text)',
-                bodyColor: 'var(--primary-text)',
-                borderColor: 'var(--border)',
-                borderWidth: 1
-            }
-        },
+        plugins: { legend: { display: false } },
         scales: {
             x: { display: false },
             y: {
                 beginAtZero: false,
-                grace: '8%',
-                grid: { color: 'var(--border)' },
                 ticks: {
                     color: 'var(--primary-text)',
-                    callback: value => `$${value.toFixed(2)}`,
-                    maxTicksLimit: 6
+                    callback: value => `$${value.toFixed(2)}`
                 }
             }
         }
     }
 });
 
-// Piyasa Simülasyonu
+// Piyasa Güncelleme
 function updateMarket() {
     const randomChange = (Math.random() * 2 - 1) * config.volatility;
-    const momentum = priceHistory.length > 1 ? 
-        (priceHistory[priceHistory.length-1] - priceHistory[priceHistory.length-2]) * 0.25 : 0;
-    
-    currentPrice = currentPrice * (1 + randomChange + momentum);
+    currentPrice = currentPrice * (1 + randomChange);
     currentPrice = parseFloat(currentPrice.toFixed(2));
     
     priceHistory.push(currentPrice);
@@ -79,42 +60,31 @@ function updateMarket() {
 
 // Haber Sistemi
 const newsDatabase = [
-    { msg: "FED Faiz Kararı: %0.75 Artış", impact: -0.06, category: 'fed' },
-    { msg: "Orta Doğu'da Gerilim Tırmanıyor", impact: 0.09, category: 'savaş' },
-    { msg: "Enflasyon Verileri Açıklandı", impact: 0.07, category: 'ekonomi' },
-    { msg: "Altın Üretiminde Rekor Düşüş", impact: 0.05, category: 'üretim' },
-    { msg: "Dolar Endeksi Yükselişte", impact: -0.08, category: 'dolar' },
-    { msg: "Merkez Bankası Altın Aldı", impact: 0.06, category: 'cb' },
-    { msg: "Yeni Maden Yasası Yürürlükte", impact: -0.04, category: 'yasa' },
-    { msg: "Küresel Ekonomide Belirsizlik", impact: 0.10, category: 'ekonomi' }
+    { msg: "FED Faiz Kararı Açıklandı", impact: -0.04 },
+    { msg: "Altın Talebinde Artış", impact: 0.06 },
+    { msg: "Dolar Endeksi Düşüşte", impact: 0.05 },
+    { msg: "Siyasi Gerilimler Artıyor", impact: 0.07 },
+    { msg: "Merkez Bankası Altın Aldı", impact: 0.03 }
 ];
 
 function generateNews() {
     const news = newsDatabase[Math.floor(Math.random() * newsDatabase.length)];
-    const impactValue = currentPrice * news.impact;
-    currentPrice += impactValue;
+    currentPrice = currentPrice * (1 + news.impact);
     currentPrice = parseFloat(currentPrice.toFixed(2));
     
     const newsElement = document.createElement('div');
     newsElement.className = 'news-item';
-    newsElement.style.borderLeftColor = news.impact > 0 ? 
-        'var(--news-positive)' : 'var(--news-negative)';
+    newsElement.style.borderLeftColor = news.impact > 0 ? 'var(--positive)' : 'var(--negative)';
     newsElement.innerHTML = `
-        <div class="news-content">
-            <div class="news-title">${news.msg}</div>
-            <div class="news-impact ${news.impact > 0 ? 'positive' : 'negative'}">
-                ${news.impact > 0 ? '▲' : '▼'} $${Math.abs(impactValue.toFixed(2))}
-            </div>
-            <div class="news-time">${new Date().toLocaleTimeString()}</div>
-        </div>
+        <div>${news.msg}</div>
+        <div>${news.impact > 0 ? '▲' : '▼'} $${Math.abs(currentPrice * news.impact).toFixed(2)}</div>
+        <small>${new Date().toLocaleTimeString()}</small>
     `;
     
-    const newsFeed = document.getElementById('newsFeed');
-    newsFeed.prepend(newsElement);
-    if(newsFeed.children.length > 10) newsFeed.lastChild.remove();
+    document.getElementById('newsFeed').prepend(newsElement);
 }
 
-// Tema Yönetimi
+// Tema Değiştirme
 function toggleTheme() {
     isDarkMode = !isDarkMode;
     document.body.setAttribute('data-theme', isDarkMode ? 'dark' : '');
@@ -127,39 +97,28 @@ function placeOrder(type) {
     const quantity = parseFloat(document.getElementById('quantity').value);
     const total = quantity * currentPrice;
     const commission = total * config.commission;
-    
+
     if(type === 'buy') {
-        if(total + commission > balance) return showAlert('Yetersiz Bakiye!', 'error');
+        if(total + commission > balance) return alert('Yetersiz Bakiye!');
         balance -= total + commission;
         holdings += quantity;
     } else {
-        if(quantity > holdings) return showAlert('Yetersiz Ons!', 'error');
+        if(quantity > holdings) return alert('Yetersiz Ons!');
         balance += total - commission;
         holdings -= quantity;
     }
     
-    addTransaction(type, quantity, total);
     updateDisplay();
 }
 
-function addTransaction(type, quantity, amount) {
-    const transaction = document.createElement('div');
-    transaction.className = `history-item ${type}`;
-    transaction.innerHTML = `
-        <span>${type === 'buy' ? 'ALIŞ' : 'SATIŞ'}</span>
-        <span>${quantity.toFixed(2)} Ons</span>
-        <span>$${amount.toFixed(2)}</span>
-    `;
-    document.getElementById('historyList').prepend(transaction);
-}
-
-// Görsel Güncellemeler
+// Görsel Güncelleme
 function updateDisplay() {
-    document.querySelector('.cash-balance').textContent = `$${balance.toFixed(2)}`;
-    document.querySelector('.portfolio-value').textContent = `$${(holdings * currentPrice).toFixed(2)}`;
-    document.querySelector('.current-price').textContent = `$${currentPrice.toFixed(2)}`;
+    document.getElementById('cashBalance').textContent = `$${balance.toFixed(2)}`;
+    document.getElementById('portfolioValue').textContent = `$${(holdings * currentPrice).toFixed(2)}`;
+    document.getElementById('currentPrice').textContent = `$${currentPrice.toFixed(2)}`;
 }
 
+// Grafik Güncelleme
 function updateChart() {
     chart.data.datasets[0].data = priceHistory;
     chart.update();
@@ -171,4 +130,3 @@ setInterval(generateNews, config.newsInterval);
 
 // Tema Kontrolü
 if(isDarkMode) document.body.setAttribute('data-theme', 'dark');
-chart.update();
