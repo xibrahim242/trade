@@ -8,44 +8,179 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <button class="theme-toggle" onclick="toggleTheme()">
-        <i class="fas fa-moon"></i>
-    </button>
+    <div class="header">
+        <h1>XAU/USD Trading Simülatörü</h1>
+        <div class="price-badge">
+            <span id="priceDirection" class="price-direction"></span>
+            <span id="currentPrice">$2300.00</span>
+        </div>
+        <button class="theme-toggle" onclick="toggleTheme()">
+            <i class="fas fa-moon"></i>
+        </button>
+    </div>
 
     <div class="container">
         <div class="chart-container">
-            <h2><i class="fas fa-coins"></i> XAU/USD Canlı Fiyat: <span id="currentPrice">$2300.00</span></h2>
+            <div class="chart-header">
+                <h2><i class="fas fa-coins"></i> XAU/USD Grafiği</h2>
+                <div class="timeframe-selector">
+                    <button onclick="changeTimeframe('1m')" class="active">1d</button>
+                    <button onclick="changeTimeframe('5m')">5d</button>
+                    <button onclick="changeTimeframe('15m')">1m</button>
+                </div>
+            </div>
             <canvas id="priceChart"></canvas>
         </div>
 
-        <div class="trading-panel">
-            <div class="portfolio-info">
-                <div class="portfolio-item">
-                    <span>Nakit Bakiye:</span>
-                    <span id="cashBalance">$100,000.00</span>
-                </div>
-                <div class="portfolio-item">
-                    <span>Portföy Değeri:</span>
-                    <span id="portfolioValue">$0.00</span>
+        <div class="main-content">
+            <div class="left-panel">
+                <div class="trading-panel">
+                    <div class="portfolio-info">
+                        <div class="portfolio-item">
+                            <span>Nakit Bakiye:</span>
+                            <span id="cashBalance">$100,000.00</span>
+                        </div>
+                        <div class="portfolio-item">
+                            <span>Portföy Değeri:</span>
+                            <span id="portfolioValue">$0.00</span>
+                        </div>
+                        <div class="portfolio-item">
+                            <span>Toplam Değer:</span>
+                            <span id="totalValue">$100,000.00</span>
+                        </div>
+                        <div class="portfolio-item">
+                            <span>Kar/Zarar:</span>
+                            <span id="profitLoss">$0.00 (0.00%)</span>
+                        </div>
+                    </div>
+
+                    <div class="trade-form">
+                        <div class="amount-input">
+                            <label for="quantity">İşlem Miktarı (ons):</label>
+                            <input type="number" id="quantity" min="0.01" step="0.01" value="0.01" placeholder="Ons Miktarı">
+                        </div>
+                        <div class="trade-info">
+                            <div>İşlem Tutarı: <span id="tradeAmount">$23.00</span></div>
+                            <div>Komisyon: <span id="tradeCommission">$0.03</span></div>
+                        </div>
+                        <div class="btn-group">
+                            <button class="btn-buy" onclick="placeOrder('buy')"><i class="fas fa-arrow-up"></i> AL</button>
+                            <button class="btn-sell" onclick="placeOrder('sell')"><i class="fas fa-arrow-down"></i> SAT</button>
+                        </div>
+                    </div>
+                    
+                    <div class="technical-panel">
+                        <h3><i class="fas fa-chart-line"></i> Teknik Analiz</h3>
+                        <div class="indicators">
+                            <div class="indicator">
+                                <label for="showMA">Hareketli Ortalama (MA-20):</label>
+                                <div class="toggle-switch">
+                                    <input type="checkbox" id="showMA" onchange="toggleIndicator('ma')">
+                                    <span class="toggle-slider"></span>
+                                </div>
+                            </div>
+                            
+                            <div class="indicator">
+                                <label for="showRSI">Göreceli Güç Endeksi (RSI):</label>
+                                <div class="toggle-switch">
+                                    <input type="checkbox" id="showRSI" onchange="toggleIndicator('rsi')">
+                                    <span class="toggle-slider"></span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="indicator-values">
+                            <div class="indicator-value" id="maValue">MA(20): -</div>
+                            <div class="indicator-value" id="rsiValue">RSI: -</div>
+                        </div>
+                    </div>
+                    
+                    <div class="price-alerts">
+                        <h3><i class="fas fa-bell"></i> Fiyat Alarmları</h3>
+                        <div class="alert-inputs">
+                            <div>
+                                <label for="alertPrice">Fiyat:</label>
+                                <input type="number" id="alertPrice" step="0.01" value="">
+                            </div>
+                            <div>
+                                <label for="alertDirection">Yön:</label>
+                                <select id="alertDirection">
+                                    <option value="above">Üzeri</option>
+                                    <option value="below">Altı</option>
+                                </select>
+                            </div>
+                            <button onclick="addAlert()">Alarm Ekle</button>
+                        </div>
+                        <div id="alertsList" class="alerts-list"></div>
+                    </div>
+                    
+                    <div class="auto-trading">
+                        <h3><i class="fas fa-robot"></i> Otomatik İşlem</h3>
+                        <div class="strategy-selector">
+                            <label for="strategy">Strateji:</label>
+                            <select id="strategy">
+                                <option value="none">Manuel İşlem</option>
+                                <option value="ma-cross">MA Kesişim Stratejisi</option>
+                                <option value="rsi">RSI Stratejisi</option>
+                            </select>
+                        </div>
+                        <div class="toggle-switch-container">
+                            <label>Otomatik İşlem:</label>
+                            <div class="toggle-switch">
+                                <input type="checkbox" id="autoTrading" onchange="toggleAutoTrading()">
+                                <span class="toggle-slider"></span>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
-
-            <div class="trade-form">
-                <input type="number" id="quantity" min="0.01" step="0.01" value="0.01" placeholder="Ons Miktarı">
-                <div class="btn-group">
-                    <button class="btn-buy" onclick="placeOrder('buy')"><i class="fas fa-arrow-up"></i> AL</button>
-                    <button class="btn-sell" onclick="placeOrder('sell')"><i class="fas fa-arrow-down"></i> SAT</button>
+            
+            <div class="right-panel">
+                <div class="news-container">
+                    <h3><i class="fas fa-bullhorn"></i> Anlık Haberler</h3>
+                    <div id="newsFeed"></div>
+                </div>
+                
+                <div class="transaction-history">
+                    <h3><i class="fas fa-history"></i> İşlem Geçmişi</h3>
+                    <div class="history-header">
+                        <span>Tarih/Saat</span>
+                        <span>İşlem</span>
+                        <span>Miktar</span>
+                        <span>Fiyat</span>
+                        <span>Toplam</span>
+                    </div>
+                    <div id="transactionsContainer"></div>
+                </div>
+                
+                <div class="statistics-panel">
+                    <h3><i class="fas fa-chart-pie"></i> İstatistikler</h3>
+                    <div class="stats-grid">
+                        <div class="stat-item">
+                            <div class="stat-label">Toplam İşlem</div>
+                            <div class="stat-value" id="totalTrades">0</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-label">Kazançlı İşlem</div>
+                            <div class="stat-value" id="profitableTrades">0</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-label">Ortalama Kazanç</div>
+                            <div class="stat-value" id="avgProfit">$0.00</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-label">Ortalama Kayıp</div>
+                            <div class="stat-value" id="avgLoss">$0.00</div>
+                        </div>
+                    </div>
                 </div>
             </div>
-        </div>
-
-        <div class="news-container">
-            <h3><i class="fas fa-bullhorn"></i> Anlık Haberler</h3>
-            <div id="newsFeed"></div>
         </div>
     </div>
+
+    <div id="notifications"></div>
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="script.js"></script>
 </body>
-</html>
+                                </html>
