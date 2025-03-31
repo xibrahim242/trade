@@ -5,7 +5,140 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>XAU/USD Trading Simülatörü</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <link rel="stylesheet" href="style.css">
+    <style>
+        /* style.css */
+        :root {
+            --primary-text: #2d3436;
+            --background: #ffffff;
+            --secondary-bg: #f5f6fa;
+            --success: #27ae60;
+            --danger: #e74c3c;
+            --border: #dcdde1;
+            --chart-line: #fdcb6e;
+            --positive: #2ecc71;
+            --negative: #e74c3c;
+            --panel-bg: #ffffff;
+            --shadow: rgba(0, 0, 0, 0.1);
+        }
+
+        [data-theme="dark"] {
+            --primary-text: #dfe6e9;
+            --background: #2d3436;
+            --secondary-bg: #404a53;
+            --border: #4b545c;
+            --chart-line: #ffeaa7;
+            --panel-bg: #2f3640;
+            --shadow: rgba(0, 0, 0, 0.3);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            transition: background 0.3s, color 0.3s;
+        }
+
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: var(--background);
+            color: var(--primary-text);
+            line-height: 1.6;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 20px;
+            background: var(--panel-bg);
+            border-radius: 15px;
+            box-shadow: 0 5px 15px var(--shadow);
+            border: 1px solid var(--border);
+        }
+
+        .price-badge, .time-badge {
+            padding: 8px 15px;
+            border-radius: 30px;
+            background: var(--secondary-bg);
+            font-weight: bold;
+        }
+
+        .chart-container {
+            height: 400px;
+            width: 100%;
+        }
+
+        .panel {
+            background: var(--panel-bg);
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 5px 15px var(--shadow);
+            border: 1px solid var(--border);
+        }
+
+        .portfolio-stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .portfolio-item {
+            background: var(--secondary-bg);
+            padding: 15px;
+            border-radius: 10px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .trade-form {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            background: var(--secondary-bg);
+            color: var(--primary-text);
+        }
+
+        button {
+            padding: 12px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            color: white;
+        }
+
+        .btn-buy { background: var(--success); }
+        .btn-sell { background: var(--danger); }
+
+        .theme-toggle {
+            position: fixed;
+            bottom: 25px;
+            right: 25px;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: var(--secondary-bg);
+            border: 1px solid var(--border);
+            cursor: pointer;
+            box-shadow: 0 5px 15px var(--shadow);
+        }
+    </style>
 </head>
 <body>
     <button class="theme-toggle" onclick="toggleTheme()">
@@ -29,21 +162,7 @@
         <div class="dashboard">
             <div class="chart-section">
                 <div class="chart-container">
-                    <div class="chart-controls">
-                        <div class="timeframe-selector">
-                            <button class="timeframe-btn active" onclick="changeTimeframe('1m')">1D</button>
-                            <button class="timeframe-btn" onclick="changeTimeframe('5m')">5D</button>
-                            <button class="timeframe-btn" onclick="changeTimeframe('15m')">1M</button>
-                        </div>
-                        <div class="indicator-toggles">
-                            <label><input type="checkbox" id="showMA" onchange="toggleIndicator('ma')"> MA</label>
-                            <label><input type="checkbox" id="showRSI" onchange="toggleIndicator('rsi')"> RSI</label>
-                        </div>
-                    </div>
                     <canvas id="priceChart"></canvas>
-                    <div id="rsiContainer" class="indicator-container" style="display: none;">
-                        <canvas id="rsiChart"></canvas>
-                    </div>
                 </div>
             </div>
 
@@ -67,10 +186,6 @@
                             <span>Toplam Değer:</span>
                             <span id="totalValue">$100,000.00</span>
                         </div>
-                        <div class="portfolio-item">
-                            <span>Kar/Zarar:</span>
-                            <span id="profitLoss">$0.00 (0.00%)</span>
-                        </div>
                     </div>
                 </div>
 
@@ -81,144 +196,111 @@
                             <label for="quantity">Miktar (ons):</label>
                             <input type="number" id="quantity" min="0.01" step="0.01" value="1.00">
                         </div>
-                        
-                        <div class="trade-info">
-                            <div>Toplam Tutar: <span id="tradeTotal">$0.00</span></div>
-                            <div>Komisyon: <span id="tradeCommission">$0.00</span></div>
-                        </div>
-                        
                         <div class="btn-group">
                             <button class="btn-buy" onclick="placeOrder('buy')"><i class="fas fa-arrow-up"></i> AL</button>
                             <button class="btn-sell" onclick="placeOrder('sell')"><i class="fas fa-arrow-down"></i> SAT</button>
                         </div>
                     </div>
                 </div>
-
-                <div class="alerts-panel panel">
-                    <h3><i class="fas fa-bell"></i> Fiyat Alarmları</h3>
-                    <div class="alert-form">
-                        <div class="input-group">
-                            <label for="alertPrice">Fiyat Seviyesi:</label>
-                            <input type="number" id="alertPrice" step="0.01" value="">
-                        </div>
-                        <div class="input-group">
-                            <label for="alertType">Alarm Tipi:</label>
-                            <select id="alertType">
-                                <option value="above">Fiyat Üstüne Çıkarsa</option>
-                                <option value="below">Fiyat Altına İnerse</option>
-                            </select>
-                        </div>
-                        <button class="btn-add-alert" onclick="addAlert()"><i class="fas fa-plus"></i> Alarm Ekle</button>
-                    </div>
-                    
-                    <div id="alertsList" class="alerts-list">
-                        <!-- Alarmlar buraya eklenecek -->
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="second-row">
-            <div class="automated-trading panel">
-                <h3><i class="fas fa-robot"></i> Otomatik Ticaret</h3>
-                <div class="strategy-form">
-                    <div class="input-group">
-                        <label for="strategyType">Strateji:</label>
-                        <select id="strategyType">
-                            <option value="maStrategy">MA Çapraz Strateji</option>
-                            <option value="rsiStrategy">RSI Aşırı Alım/Satım Stratejisi</option>
-                            <option value="trendStrategy">Trend Takip Stratejisi</option>
-                        </select>
-                    </div>
-                    <div class="input-group">
-                        <label for="strategyAmount">İşlem Miktarı (ons):</label>
-                        <input type="number" id="strategyAmount" min="0.01" step="0.01" value="0.5">
-                    </div>
-                    <div class="strategy-toggle">
-                        <label for="autoTradeActive">Otomatik İşlem:</label>
-                        <div class="toggle-switch">
-                            <input type="checkbox" id="autoTradeActive" onchange="toggleAutoTrading()">
-                            <span class="toggle-slider"></span>
-                        </div>
-                    </div>
-                </div>
-                <div class="strategy-info">
-                    <div id="strategyStatus">Durum: Devre Dışı</div>
-                    <div id="strategyStats">Son İşlem: -</div>
-                </div>
-            </div>
-
-            <div class="transaction-history panel">
-                <h3><i class="fas fa-history"></i> İşlem Geçmişi</h3>
-                <div class="history-header">
-                    <span>Tarih/Saat</span>
-                    <span>İşlem</span>
-                    <span>Miktar</span>
-                    <span>Fiyat</span>
-                    <span>Toplam</span>
-                </div>
-                <div id="transactionsContainer" class="transactions-list">
-                    <!-- İşlem geçmişi buraya eklenecek -->
-                </div>
-            </div>
-        </div>
-
-        <div class="news-container panel">
-            <h3><i class="fas fa-bullhorn"></i> Piyasa Haberleri</h3>
-            <div id="newsFeed" class="news-list">
-                <!-- Haberler buraya eklenecek -->
-            </div>
-        </div>
-
-        <div class="stats-panel panel">
-            <h3><i class="fas fa-chart-pie"></i> Performans İstatistikleri</h3>
-            <div class="stats-grid">
-                <div class="stat-item">
-                    <div class="stat-title">Toplam İşlem</div>
-                    <div class="stat-value" id="totalTrades">0</div>
-                </div>
-                <div class="stat-item">
-                    <div class="stat-title">Kazançlı İşlemler</div>
-                    <div class="stat-value" id="profitableTrades">0 (0%)</div>
-                </div>
-                <div class="stat-item">
-                    <div class="stat-title">Net Kar/Zarar</div>
-                    <div class="stat-value" id="netProfit">$0.00</div>
-                </div>
-                <div class="stat-item">
-                    <div class="stat-title">En Büyük Kazanç</div>
-                    <div class="stat-value" id="maxProfit">$0.00</div>
-                </div>
-                <div class="stat-item">
-                    <div class="stat-title">En Büyük Kayıp</div>
-                    <div class="stat-value" id="maxLoss">$0.00</div>
-                </div>
-                <div class="stat-item">
-                    <div class="stat-title">Ortalama İşlem</div>
-                    <div class="stat-value" id="avgTradeProfit">$0.00</div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div id="alertModal" class="modal">
-        <div class="modal-content">
-            <span class="close-btn">&times;</span>
-            <div class="modal-header">
-                <i class="fas fa-bell"></i>
-                <h3>Fiyat Alarmı!</h3>
-            </div>
-            <div class="modal-body">
-                <p id="alertMessage"></p>
-                <p id="alertPriceInfo"></p>
-            </div>
-            <div class="modal-footer">
-                <button onclick="closeAlertModal()">Tamam</button>
             </div>
         </div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script src="script.js"></script>
+    <script>
+        // script.js
+        const config = {
+            initialPrice: 2300.00,
+            initialBalance: 100000,
+            volatility: 0.02,
+            marketUpdateInterval: 1000,
+            commission: 0.0015
+        };
+
+        let currentPrice = config.initialPrice;
+        let balance = config.initialBalance;
+        let holdings = 0;
+        let priceHistory = Array(100).fill(config.initialPrice);
+        let isDarkMode = localStorage.getItem('theme') === 'dark';
+        let priceChart;
+
+        function initChart() {
+            const ctx = document.getElementById('priceChart').getContext('2d');
+            priceChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: priceHistory.map((_, i) => i + 1),
+                    datasets: [{
+                        label: 'XAU/USD',
+                        data: priceHistory,
+                        borderColor: 'var(--chart-line)',
+                        borderWidth: 2,
+                        tension: 0.1,
+                        pointRadius: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: { beginAtZero: false }
+                    }
+                }
+            });
+        }
+
+        function toggleTheme() {
+            isDarkMode = !isDarkMode;
+            document.body.setAttribute('data-theme', isDarkMode ? 'dark' : 'light');
+            localStorage.setItem('theme', isDarkMode ? 'dark' : 'light');
+        }
+
+        function updateMarket() {
+            const change = currentPrice * config.volatility * (Math.random() * 2 - 1);
+            currentPrice += change;
+            
+            priceHistory.shift();
+            priceHistory.push(currentPrice);
+            
+            priceChart.data.datasets[0].data = priceHistory;
+            priceChart.update();
+            
+            updateDisplay();
+        }
+
+        function placeOrder(type) {
+            const quantity = parseFloat(document.getElementById('quantity').value);
+            const total = quantity * currentPrice;
+            const commission = total * config.commission;
+
+            if(type === 'buy') {
+                if(balance < total + commission) return alert('Yetersiz bakiye!');
+                balance -= (total + commission);
+                holdings += quantity;
+            } else {
+                if(holdings < quantity) return alert('Yetersiz altın!');
+                balance += (total - commission);
+                holdings -= quantity;
+            }
+
+            updateDisplay();
+        }
+
+        function updateDisplay() {
+            document.getElementById('currentPrice').textContent = `$${currentPrice.toFixed(2)}`;
+            document.getElementById('cashBalance').textContent = `$${balance.toFixed(2)}`;
+            document.getElementById('goldHoldings').textContent = `${holdings.toFixed(2)} ons`;
+            document.getElementById('goldValue').textContent = `$${(holdings * currentPrice).toFixed(2)}`;
+            document.getElementById('totalValue').textContent = `$${(balance + holdings * currentPrice).toFixed(2)}`;
+        }
+
+        // Başlangıç
+        window.addEventListener('DOMContentLoaded', () => {
+            initChart();
+            updateDisplay();
+            setInterval(updateMarket, config.marketUpdateInterval);
+            if(isDarkMode) document.body.setAttribute('data-theme', 'dark');
+        });
+    </script>
 </body>
-                </html>
+</html>
