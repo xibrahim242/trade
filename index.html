@@ -2,51 +2,45 @@
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
-    <title>Profesyonel XAU/USD Simülatörü</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>XAU/USD Trading Simülatörü</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <button class="theme-toggle" onclick="toggleTheme()">
-        <i class="fas fa-moon light-icon"></i>
-        <i class="fas fa-sun dark-icon"></i>
+        <i class="fas fa-moon"></i>
     </button>
 
     <div class="container">
-        <div class="chart-box">
-            <h2><i class="fas fa-chart-line"></i> XAU/USD Canlı Grafik</h2>
+        <div class="chart-container">
+            <h2><i class="fas fa-coins"></i> XAU/USD Canlı Fiyat: <span id="currentPrice">$2300.00</span></h2>
             <canvas id="priceChart"></canvas>
         </div>
 
         <div class="trading-panel">
-            <div class="market-data">
-                <div class="market-item">
-                    <div>Nakit Bakiye</div>
-                    <div class="cash-balance">$100,000.00</div>
+            <div class="portfolio-info">
+                <div class="portfolio-item">
+                    <span>Nakit Bakiye:</span>
+                    <span id="cashBalance">$100,000.00</span>
                 </div>
-                <div class="market-item">
-                    <div>Portföy Değeri</div>
-                    <div class="portfolio-value">$0.00</div>
+                <div class="portfolio-item">
+                    <span>Portföy Değeri:</span>
+                    <span id="portfolioValue">$0.00</span>
                 </div>
             </div>
 
-            <div class="order-form">
+            <div class="trade-form">
                 <input type="number" id="quantity" min="0.01" step="0.01" value="0.01" placeholder="Ons Miktarı">
                 <div class="btn-group">
                     <button class="btn-buy" onclick="placeOrder('buy')"><i class="fas fa-arrow-up"></i> AL</button>
                     <button class="btn-sell" onclick="placeOrder('sell')"><i class="fas fa-arrow-down"></i> SAT</button>
                 </div>
             </div>
-
-            <div class="transaction-history">
-                <h3><i class="fas fa-history"></i> İşlem Geçmişi</h3>
-                <div id="historyList"></div>
-            </div>
         </div>
 
         <div class="news-container">
-            <h3><i class="fas fa-newspaper"></i> Anlık Piyasa Haberleri</h3>
+            <h3><i class="fas fa-bullhorn"></i> Anlık Haberler</h3>
             <div id="newsFeed"></div>
         </div>
     </div>
