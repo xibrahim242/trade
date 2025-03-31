@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+    <title>XAU/USD Trading Simülatörü</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <button class="theme-toggle" onclick="toggleTheme()"><i class="fas fa-moon"></i></button>
+
+    <div class="container">
+        <div class="chart-box">
+            <h2><i class="fas fa-chart-line"></i> XAU/USD Canlı Grafik</h2>
+            <canvas id="priceChart"></canvas>
+        </div>
+
+        <div class="trading-panel">
+            <div class="market-data">
+                <div class="market-item">
+                    <div>Anlık Fiyat</div>
+                    <div class="current-price">$2300.00</div>
+                </div>
+                <div class="market-item">
+                    <div>Portföy Değeri</div>
+                    <div class="portfolio-value">$0.00</div>
+                </div>
+            </div>
+
+            <div class="order-form">
+                <input type="number" id="quantity" min="0.01" step="0.01" value="0.01" placeholder="Ons Miktarı">
+                <div class="btn-group">
+                    <button class="btn-buy" onclick="placeOrder('buy')"><i class="fas fa-arrow-up"></i> AL</button>
+                    <button class="btn-sell" onclick="placeOrder('sell')"><i class="fas fa-arrow-down"></i> SAT</button>
+                </div>
+            </div>
+
+            <div class="transaction-history">
+                <h3><i class="fas fa-history"></i> İşlemler</h3>
+                <div id="historyList"></div>
+            </div>
+        </div>
+
+        <div class="news-container">
+            <h3><i class="fas fa-newspaper"></i> Piyasa Haberleri</h3>
+            <div id="newsFeed"></div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
