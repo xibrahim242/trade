@@ -2,317 +2,56 @@
 <html lang="tr">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>XAU/USD Trading Simülatörü</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0">
+    <title>Profesyonel XAU/USD Simülatörü</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
-    <style>
-        :root {
-            --primary-text: #2d3436;
-            --background: #ffffff;
-            --secondary-bg: #f8f9fa;
-            --success: #27ae60;
-            --danger: #e74c3c;
-            --border: #dfe6e9;
-            --chart-color: #fdcb6e;
-            --positive: #2ecc71;
-            --negative: #e74c3c;
-        }
-
-        [data-theme="dark"] {
-            --primary-text: #dfe6e9;
-            --background: #2d3436;
-            --secondary-bg: #3b4346;
-            --border: #4a5256;
-            --chart-color: #ffeaa7;
-        }
-
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            transition: all 0.3s ease;
-        }
-
-        body {
-            font-family: 'Segoe UI', sans-serif;
-            background: var(--background);
-            color: var(--primary-text);
-            line-height: 1.6;
-            padding: 20px;
-        }
-
-        .container {
-            max-width: 1200px;
-            margin: 0 auto;
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 20px;
-        }
-
-        .chart-container {
-            height: 400px;
-            background: var(--secondary-bg);
-            border-radius: 15px;
-            padding: 20px;
-            border: 1px solid var(--border);
-        }
-
-        .trading-panel {
-            background: var(--secondary-bg);
-            padding: 20px;
-            border-radius: 15px;
-            border: 1px solid var(--border);
-        }
-
-        .market-info {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 15px;
-            margin-bottom: 20px;
-        }
-
-        .market-item {
-            padding: 15px;
-            background: var(--background);
-            border-radius: 10px;
-            text-align: center;
-            border: 1px solid var(--border);
-        }
-
-        .order-form {
-            display: grid;
-            gap: 15px;
-        }
-
-        input {
-            width: 100%;
-            padding: 12px;
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            background: var(--background);
-            color: var(--primary-text);
-        }
-
-        .btn-group {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-        }
-
-        button {
-            padding: 12px;
-            border: none;
-            border-radius: 8px;
-            cursor: pointer;
-            font-weight: 600;
-            color: white;
-        }
-
-        .buy-btn { background: var(--success); }
-        .sell-btn { background: var(--negative); }
-
-        .news-container {
-            background: var(--secondary-bg);
-            padding: 20px;
-            border-radius: 15px;
-            border: 1px solid var(--border);
-        }
-
-        .news-item {
-            padding: 15px;
-            margin: 10px 0;
-            border-left: 4px solid;
-            border-radius: 6px;
-            background: var(--background);
-            animation: slideIn 0.3s ease;
-        }
-
-        @keyframes slideIn {
-            from { transform: translateX(-20px); opacity: 0; }
-            to { transform: translateX(0); opacity: 1; }
-        }
-
-        .theme-toggle {
-            position: fixed;
-            bottom: 25px;
-            right: 25px;
-            padding: 12px;
-            border-radius: 50%;
-            background: var(--secondary-bg);
-            border: 1px solid var(--border);
-            cursor: pointer;
-        }
-    </style>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <button class="theme-toggle" onclick="toggleTheme()">
-        <i class="fas fa-moon"></i>
+        <i class="fas fa-moon light-icon"></i>
+        <i class="fas fa-sun dark-icon"></i>
     </button>
 
     <div class="container">
-        <div class="chart-container">
+        <div class="chart-box">
+            <h2><i class="fas fa-chart-line"></i> XAU/USD Canlı Grafik</h2>
             <canvas id="priceChart"></canvas>
         </div>
 
         <div class="trading-panel">
-            <div class="market-info">
+            <div class="market-data">
                 <div class="market-item">
                     <div>Nakit Bakiye</div>
-                    <div id="cashBalance">$100,000.00</div>
+                    <div class="cash-balance">$100,000.00</div>
                 </div>
                 <div class="market-item">
                     <div>Portföy Değeri</div>
-                    <div id="portfolioValue">$0.00</div>
+                    <div class="portfolio-value">$0.00</div>
                 </div>
             </div>
 
             <div class="order-form">
-                <input type="number" id="quantity" min="0.01" step="0.01" value="0.01">
+                <input type="number" id="quantity" min="0.01" step="0.01" value="0.01" placeholder="Ons Miktarı">
                 <div class="btn-group">
-                    <button class="buy-btn" onclick="placeOrder('buy')">AL</button>
-                    <button class="sell-btn" onclick="placeOrder('sell')">SAT</button>
+                    <button class="btn-buy" onclick="placeOrder('buy')"><i class="fas fa-arrow-up"></i> AL</button>
+                    <button class="btn-sell" onclick="placeOrder('sell')"><i class="fas fa-arrow-down"></i> SAT</button>
                 </div>
+            </div>
+
+            <div class="transaction-history">
+                <h3><i class="fas fa-history"></i> İşlem Geçmişi</h3>
+                <div id="historyList"></div>
             </div>
         </div>
 
         <div class="news-container">
-            <h3>Piyasa Haberleri</h3>
+            <h3><i class="fas fa-newspaper"></i> Anlık Piyasa Haberleri</h3>
             <div id="newsFeed"></div>
         </div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <script>
-        const config = {
-            initialPrice: 2300.00,
-            initialBalance: 100000,
-            volatility: 0.03,
-            newsInterval: 5000,
-            commission: 0.001,
-            historyLength: 100
-        };
-
-        let currentPrice = config.initialPrice;
-        let balance = config.initialBalance;
-        let holdings = 0;
-        let priceHistory = Array(config.historyLength).fill(config.initialPrice);
-        let isDarkMode = false;
-
-        // Grafik Başlatma
-        const ctx = document.getElementById('priceChart').getContext('2d');
-        const chart = new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels: priceHistory.map((_, i) => i + 1),
-                datasets: [{
-                    label: 'XAU/USD',
-                    data: priceHistory,
-                    borderColor: 'var(--chart-color)',
-                    tension: 0.1,
-                    borderWidth: 2,
-                    pointRadius: 0
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                scales: {
-                    x: { display: false },
-                    y: {
-                        beginAtZero: false,
-                        ticks: {
-                            color: 'var(--primary-text)',
-                            callback: value => `$${value.toFixed(2)}`
-                        }
-                    }
-                }
-            }
-        });
-
-        // Piyasa Güncelleme
-        function updateMarket() {
-            const change = (Math.random() * 2 - 1) * config.volatility;
-            currentPrice = currentPrice * (1 + change);
-            currentPrice = parseFloat(currentPrice.toFixed(2));
-            
-            priceHistory.push(currentPrice);
-            priceHistory.shift();
-            
-            updateChart();
-            updateDisplay();
-        }
-
-        // Haber Sistemi
-        const newsData = [
-            { message: "FED Faiz Artışı Beklentisi", impact: -0.05 },
-            { message: "Altın Talebinde Artış", impact: 0.07 },
-            { message: "Dolar Endeksi Düşüşte", impact: 0.04 },
-            { message: "Siyasi Gerilimler Artıyor", impact: 0.06 },
-            { message: "Enflasyon Verileri Açıklandı", impact: -0.03 }
-        ];
-
-        function generateNews() {
-            const news = newsData[Math.floor(Math.random() * newsData.length)];
-            currentPrice = currentPrice * (1 + news.impact);
-            currentPrice = parseFloat(currentPrice.toFixed(2));
-            
-            const newsElement = document.createElement('div');
-            newsElement.className = 'news-item';
-            newsElement.style.borderColor = news.impact > 0 ? 'var(--positive)' : 'var(--negative)';
-            newsElement.innerHTML = `
-                <div>${news.message}</div>
-                <div>${news.impact > 0 ? '▲' : '▼'} ${Math.abs(news.impact * 100).toFixed(1)}%</div>
-                <small>${new Date().toLocaleTimeString()}</small>
-            `;
-            
-            document.getElementById('newsFeed').prepend(newsElement);
-        }
-
-        // Tema Değiştirme
-        function toggleTheme() {
-            isDarkMode = !isDarkMode;
-            document.body.setAttribute('data-theme', isDarkMode ? 'dark' : '');
-            localStorage.setItem('theme', isDarkMode ? 'dark' : 'light');
-            chart.update();
-        }
-
-        // İşlem Fonksiyonları
-        function placeOrder(type) {
-            const quantity = parseFloat(document.getElementById('quantity').value);
-            const total = quantity * currentPrice;
-            const commission = total * config.commission;
-
-            if(type === 'buy') {
-                if(total + commission > balance) return alert('Yetersiz Bakiye');
-                balance -= total + commission;
-                holdings += quantity;
-            } else {
-                if(quantity > holdings) return alert('Yetersiz Miktar');
-                balance += total - commission;
-                holdings -= quantity;
-            }
-            
-            updateDisplay();
-        }
-
-        // Görsel Güncelleme
-        function updateDisplay() {
-            document.getElementById('cashBalance').textContent = `$${balance.toFixed(2)}`;
-            document.getElementById('portfolioValue').textContent = `$${(holdings * currentPrice).toFixed(2)}`;
-        }
-
-        // Grafik Güncelleme
-        function updateChart() {
-            chart.data.datasets[0].data = priceHistory;
-            chart.update();
-        }
-
-        // Sistem Başlatma
-        setInterval(updateMarket, 2000);
-        setInterval(generateNews, config.newsInterval);
-
-        // Tema Kontrolü
-        if(localStorage.getItem('theme') === 'dark') toggleTheme();
-    </script>
+    <script src="script.js"></script>
 </body>
 </html>
